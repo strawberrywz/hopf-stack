@@ -1,1 +1,1 @@
-# hopf-stack
+# Hopf Algebra Cloud Formation Stack
