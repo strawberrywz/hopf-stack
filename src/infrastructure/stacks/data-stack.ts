@@ -1,25 +1,27 @@
-import { Stack, StackProps } from "aws-cdk-lib";
-import { AttributeType, Table } from "aws-cdk-lib/aws-dynamodb";
+import { CfnOutput, Stack, StackProps } from "aws-cdk-lib";
+import { AttributeType, BillingMode, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
-import { getSuffixFromStack } from "../utilts";
-
-interface DataStackProps extends StackProps {
-  environment: "dev" | "prod";
-}
 
 export class DataStack extends Stack {
-  constructor(scope: Construct, id: string, props: DataStackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const suffix = getSuffixFromStack(this);
-    const tableName = `hopf-algebra-${props.environment}-table`;
+    const chatHistoryTable = new Table(this, "ChatHistoryTable", {
+      tableName: "hopf-chat-history",
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "chatId", type: AttributeType.STRING },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    });
 
-    new Table(this, "HopfTable", {
-      partitionKey: {
-        name: "id",
-        type: AttributeType.STRING,
-      },
-      tableName: tableName,
+    chatHistoryTable.addGlobalSecondaryIndex({
+      indexName: "CreatedAtIndex",
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "chatId", type: AttributeType.STRING },
+    });
+
+    new CfnOutput(this, "ChatHistoryTableName", {
+      value: chatHistoryTable.tableName,
+      description: "Name of the chat history table",
     });
   }
 }

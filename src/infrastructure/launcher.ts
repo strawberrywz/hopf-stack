@@ -1,10 +1,7 @@
 import { App } from "aws-cdk-lib";
 import { DataStack } from "./stacks/data-stack";
+import { AuthStack } from "./stacks/auth-stack";
 
 const app = new App();
-new DataStack(app, "DataStack-dev", {
-  environment: "dev",
-});
-new DataStack(app, "DataStack-prod", {
-  environment: "prod",
-});
+new AuthStack(app, "AuthStack");
+new DataStack(app, "DataStack");
